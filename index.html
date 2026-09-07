@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telehealth · Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; }
+    :root {
+      --primary: #0b6e6e;
+      --primary-light: #1a8f8f;
+      --primary-dark: #074f4f;
+      --bg: #f4f9fc;
+      --surface: #ffffff;
+      --text: #1a2e3b;
+      --text-muted: #3d5a68;
+      --border: #d0e0e8;
+      --shadow: 0 8px 20px rgba(0, 40, 50, 0.08);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --transition: 0.2s ease;
+      --nav-height: 70px;
+      --delete-color: #dc3545;
+      --delete-hover: #c82333;
+    }
+    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; padding: 0 16px; }
+    nav {
+      background: var(--surface);
+      padding: 0 20px;
+      height: var(--nav-height);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nav-links a {
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid transparent;
+    }
+    .nav-links a i { font-size: 1.1rem; }
+    .nav-links a:hover { background: #e6f0f5; color: var(--primary); }
+    .nav-links a:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 40px; }
+    .nav-links a.active { background: var(--primary); color: white; box-shadow: 0 4px 8px rgba(11, 110, 110, 0.3); }
+    .brand { font-weight: 700; font-size: 1.4rem; color: var(--primary-dark); letter-spacing: -0.5px; }
+    .brand i { margin-right: 8px; color: var(--primary-light); }
+    .role-badge { font-size: 0.7rem; background: #f0e6d0; padding: 4px 12px; border-radius: 20px; font-weight: 600; color: #7a5a1a; letter-spacing: 0.3px; margin-left: 10px; }
+    .page-container { max-width: 1400px; margin: 0 auto; width: 100%; flex: 1; }
+    .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 24px; margin: 30px 0; }
+    .stat-card { background: var(--surface); border-radius: var(--radius); padding: 24px 20px; box-shadow: var(--shadow); border-left: 6px solid var(--primary-light); transition: var(--transition); }
+    .stat-card h3 { font-weight: 500; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-muted); }
+    .stat-card .value { font-size: 2.4rem; font-weight: 700; margin-top: 6px; color: var(--primary-dark); }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 28px; }
+    .card h2 { font-size: 1.5rem; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; color: var(--primary-dark); }
+    .btn { background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 40px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 10px; align-self: flex-start; border: 2px solid transparent; }
+    .btn:hover { background: var(--primary-dark); transform: scale(1.02); box-shadow: 0 6px 12px rgba(11, 110, 110, 0.3); }
+    .btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+    .btn-secondary { background: #eef3f7; color: var(--text); }
+    .btn-secondary:hover { background: #d5e2ea; }
+    .flex-row { display: flex; flex-wrap: wrap; gap: 16px; align-items: center; }
+    .text-muted { color: var(--text-muted); }
+    .creator-indicator { background: #e8f0fe; border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--primary-dark); border-left: 4px solid var(--primary); }
+    .creator-indicator i { color: var(--primary); }
+    @media (max-width: 800px) {
+      nav { flex-direction: column; height: auto; padding: 16px 12px; gap: 10px; align-items: stretch; }
+      .nav-links { justify-content: center; }
+      .nav-links a { font-size: 0.85rem; padding: 8px 14px; }
+      .brand { text-align: center; }
+      .card-grid { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 540px) { body { padding: 0 8px; } .card-grid { grid-template-columns: 1fr; } .stat-card .value { font-size: 1.8rem; } .btn { width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+  <nav role="navigation" aria-label="Patient portal navigation">
+    <div class="brand"><i class="fas fa-heartbeat"></i> TeleHealth <span class="role-badge" id="roleBadge">👤 Patient</span></div>
+    <div class="nav-links">
+      <a href="index.html" class="active" tabindex="0"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="appointments.html" tabindex="0"><i class="fas fa-calendar-check"></i> Appointments</a>
+      <a href="records.html" tabindex="0"><i class="fas fa-folder-open"></i> Medical Records</a>
+      <a href="prescriptions.html" tabindex="0"><i class="fas fa-prescription-bottle"></i> Prescriptions</a>
+      <a href="messages.html" tabindex="0"><i class="fas fa-envelope"></i> Messages</a>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <div class="card-grid">
+      <div class="stat-card"><h3><i class="fas fa-calendar-alt"></i> Upcoming</h3><div class="value" id="upcomingCount">0</div></div>
+      <div class="stat-card"><h3><i class="fas fa-file-medical"></i> Records</h3><div class="value" id="recordCount">0</div></div>
+      <div class="stat-card"><h3><i class="fas fa-prescription"></i> Prescriptions</h3><div class="value" id="rxCount">0</div></div>
+      <div class="stat-card"><h3><i class="fas fa-envelope"></i> Messages</h3><div class="value" id="msgCount">0</div></div>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-clock"></i> Quick actions</h2>
+      <div class="flex-row">
+        <a href="appointments.html" class="btn"><i class="fas fa-plus-circle"></i> Book appointment</a>
+        <a href="messages.html" class="btn btn-secondary"><i class="fas fa-pen"></i> New message</a>
+      </div>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-bell"></i> Recent activity</h2>
+      <div id="recentActivity"><p class="text-muted">No recent activity</p></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const IS_CREATOR = false;
+      const STORAGE = {
+        appointments: 'telehealth_appts',
+        records: 'telehealth_records',
+        prescriptions: 'telehealth_rx',
+        messages: 'telehealth_messages'
+      };
+      function getData(key) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; } catch { return []; } }
+      function seedData() {
+        if (!localStorage.getItem(STORAGE.appointments)) {
+          localStorage.setItem(STORAGE.appointments, JSON.stringify([
+            { id: 'a1', date: '2026-10-15', time: '10:30', provider: 'Dr. Chen' },
+            { id: 'a2', date: '2026-10-22', time: '14:00', provider: 'Dr. Patel' }
+          ]));
+        }
+        if (!localStorage.getItem(STORAGE.records)) {
+          localStorage.setItem(STORAGE.records, JSON.stringify([
+            { id: 'r1', title: 'General checkup', date: '2026-09-01', notes: 'All vitals normal.' }
+          ]));
+        }
+        if (!localStorage.getItem(STORAGE.prescriptions)) {
+          localStorage.setItem(STORAGE.prescriptions, JSON.stringify([
+            { id: 'p1', medication: 'Lisinopril', dosage: '10mg' }
+          ]));
+        }
+        if (!localStorage.getItem(STORAGE.messages)) {
+          localStorage.setItem(STORAGE.messages, JSON.stringify([
+            { id: 'm1', subject: 'Lab results', body: 'Your recent lab results are available.', timestamp: Date.now() - 3600000 }
+          ]));
+        }
+      }
+      seedData();
+      document.getElementById('roleBadge').textContent = IS_CREATOR ? '👑 Creator' : '👤 Patient';
+      function updateDashboard() {
+        const appts = getData(STORAGE.appointments);
+        const records = getData(STORAGE.records);
+        const rxs = getData(STORAGE.prescriptions);
+        const msgs = getData(STORAGE.messages);
+        document.getElementById('upcomingCount').textContent = appts.length;
+        document.getElementById('recordCount').textContent = records.length;
+        document.getElementById('rxCount').textContent = rxs.length;
+        document.getElementById('msgCount').textContent = msgs.length;
+        const actDiv = document.getElementById('recentActivity');
+        const total = appts.length + records.length + rxs.length + msgs.length;
+        actDiv.innerHTML = total === 0 ? '<p class="text-muted">No recent activity</p>' : `<p><i class="fas fa-check-circle" style="color:var(--primary)"></i> ${total} items in your portal. Use the tabs above.</p>`;
+      }
+      updateDashboard();
+      if (IS_CREATOR) {
+        const indicator = document.createElement('div');
+        indicator.className = 'creator-indicator';
+        indicator.innerHTML = `<i class="fas fa-crown"></i> <strong>Creator mode</strong> — You see delete buttons on other pages. Regular patients do not.`;
+        document.querySelector('.page-container').prepend(indicator);
+      }
+    })();
+  </script>
+</body>
+</html>

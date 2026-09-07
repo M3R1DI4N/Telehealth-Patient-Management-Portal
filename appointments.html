@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Telehealth · Appointments</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: system-ui, 'Segoe UI', Roboto, sans-serif; }
+    :root {
+      --primary: #0b6e6e;
+      --primary-light: #1a8f8f;
+      --primary-dark: #074f4f;
+      --bg: #f4f9fc;
+      --surface: #ffffff;
+      --text: #1a2e3b;
+      --text-muted: #3d5a68;
+      --border: #d0e0e8;
+      --shadow: 0 8px 20px rgba(0, 40, 50, 0.08);
+      --radius: 20px;
+      --radius-sm: 12px;
+      --transition: 0.2s ease;
+      --nav-height: 70px;
+      --delete-color: #dc3545;
+      --delete-hover: #c82333;
+    }
+    body { background: var(--bg); color: var(--text); display: flex; flex-direction: column; min-height: 100vh; padding: 0 16px; }
+    nav {
+      background: var(--surface);
+      padding: 0 20px;
+      height: var(--nav-height);
+      border-radius: 0 0 var(--radius) var(--radius);
+      box-shadow: var(--shadow);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+    .nav-links { display: flex; gap: 6px; flex-wrap: wrap; }
+    .nav-links a {
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      transition: var(--transition);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 2px solid transparent;
+    }
+    .nav-links a i { font-size: 1.1rem; }
+    .nav-links a:hover { background: #e6f0f5; color: var(--primary); }
+    .nav-links a:focus-visible { outline: 3px solid var(--primary); outline-offset: 2px; border-radius: 40px; }
+    .nav-links a.active { background: var(--primary); color: white; box-shadow: 0 4px 8px rgba(11, 110, 110, 0.3); }
+    .brand { font-weight: 700; font-size: 1.4rem; color: var(--primary-dark); letter-spacing: -0.5px; }
+    .brand i { margin-right: 8px; color: var(--primary-light); }
+    .role-badge { font-size: 0.7rem; background: #f0e6d0; padding: 4px 12px; border-radius: 20px; font-weight: 600; color: #7a5a1a; letter-spacing: 0.3px; margin-left: 10px; }
+    .page-container { max-width: 1400px; margin: 0 auto; width: 100%; flex: 1; }
+    .card { background: var(--surface); border-radius: var(--radius); padding: 24px; box-shadow: var(--shadow); margin-bottom: 28px; }
+    .card h2 { font-size: 1.5rem; margin-bottom: 18px; display: flex; align-items: center; gap: 12px; color: var(--primary-dark); }
+    form { display: flex; flex-direction: column; gap: 20px; max-width: 600px; }
+    .form-group { display: flex; flex-direction: column; gap: 6px; }
+    .form-group label { font-weight: 600; font-size: 0.9rem; color: var(--text); }
+    .form-group input, .form-group select, .form-group textarea {
+      padding: 14px 16px; border: 2px solid var(--border); border-radius: var(--radius-sm); font-size: 1rem; background: white; transition: var(--transition); width: 100%;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      border-color: var(--primary); outline: 3px solid rgba(11, 110, 110, 0.25); outline-offset: 2px; box-shadow: 0 0 0 2px rgba(11, 110, 110, 0.1);
+    }
+    .btn {
+      background: var(--primary); color: white; border: none; padding: 14px 28px; border-radius: 40px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; justify-content: center; gap: 10px; align-self: flex-start; border: 2px solid transparent;
+    }
+    .btn:hover { background: var(--primary-dark); transform: scale(1.02); box-shadow: 0 6px 12px rgba(11, 110, 110, 0.3); }
+    .btn:focus-visible { outline: 3px solid var(--primary); outline-offset: 3px; }
+    .btn-delete {
+      background: var(--delete-color); color: white; border: none; padding: 6px 16px; border-radius: 30px; font-weight: 600; font-size: 0.8rem; cursor: pointer; transition: var(--transition); display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-delete:hover { background: var(--delete-hover); transform: scale(1.05); }
+    .btn-delete:focus-visible { outline: 3px solid var(--delete-color); outline-offset: 2px; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+    th { text-align: left; padding: 14px 8px; background: #e9f0f5; color: var(--primary-dark); font-weight: 600; }
+    td { padding: 12px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    .text-muted { color: var(--text-muted); }
+    .creator-indicator { background: #e8f0fe; border-radius: var(--radius-sm); padding: 10px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px; font-size: 0.9rem; color: var(--primary-dark); border-left: 4px solid var(--primary); }
+    .creator-indicator i { color: var(--primary); }
+    @media (max-width: 800px) {
+      nav { flex-direction: column; height: auto; padding: 16px 12px; gap: 10px; align-items: stretch; }
+      .nav-links { justify-content: center; }
+      .nav-links a { font-size: 0.85rem; padding: 8px 14px; }
+      .brand { text-align: center; }
+    }
+    @media (max-width: 540px) { body { padding: 0 8px; } .btn { width: 100%; justify-content: center; } form { max-width: 100%; } .btn-delete { width: 100%; justify-content: center; } }
+  </style>
+</head>
+<body>
+  <nav role="navigation" aria-label="Patient portal navigation">
+    <div class="brand"><i class="fas fa-heartbeat"></i> TeleHealth <span class="role-badge" id="roleBadge">👤 Patient</span></div>
+    <div class="nav-links">
+      <a href="index.html" tabindex="0"><i class="fas fa-home"></i> Dashboard</a>
+      <a href="appointments.html" class="active" tabindex="0"><i class="fas fa-calendar-check"></i> Appointments</a>
+      <a href="records.html" tabindex="0"><i class="fas fa-folder-open"></i> Medical Records</a>
+      <a href="prescriptions.html" tabindex="0"><i class="fas fa-prescription-bottle"></i> Prescriptions</a>
+      <a href="messages.html" tabindex="0"><i class="fas fa-envelope"></i> Messages</a>
+    </div>
+  </nav>
+
+  <div class="page-container">
+    <div class="card">
+      <h2><i class="fas fa-calendar-plus"></i> Book appointment</h2>
+      <form id="appointmentForm">
+        <div class="form-group">
+          <label for="apptDate">Date</label>
+          <input type="date" id="apptDate" required aria-required="true">
+        </div>
+        <div class="form-group">
+          <label for="apptTime">Time</label>
+          <input type="time" id="apptTime" required aria-required="true">
+        </div>
+        <div class="form-group">
+          <label for="apptProvider">Provider</label>
+          <select id="apptProvider" required>
+            <option value="">Select provider</option>
+            <option value="Dr. Chen">Dr. Chen</option>
+            <option value="Dr. Patel">Dr. Patel</option>
+            <option value="Dr. Kim">Dr. Kim</option>
+            <option value="Dr. Rivera">Dr. Rivera</option>
+          </select>
+        </div>
+        <button type="submit" class="btn"><i class="fas fa-check"></i> Save appointment</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2><i class="fas fa-list"></i> Your appointments</h2>
+      <div id="appointmentList"><p class="text-muted">No appointments scheduled.</p></div>
+    </div>
+  </div>
+
+  <script>
+    (function() {
+      const IS_CREATOR = false;
+      const STORAGE = { appointments: 'telehealth_appts' };
+      function getData(key) { try { const raw = localStorage.getItem(key); return raw ? JSON.parse(raw) : []; } catch { return []; } }
+      function setData(key, data) { localStorage.setItem(key, JSON.stringify(data)); }
+      function seedData() {
+        if (!localStorage.getItem(STORAGE.appointments)) {
+          setData(STORAGE.appointments, [
+            { id: 'a1', date: '2026-10-15', time: '10:30', provider: 'Dr. Chen' },
+            { id: 'a2', date: '2026-10-22', time: '14:00', provider: 'Dr. Patel' }
+          ]);
+        }
+      }
+      seedData();
+      document.getElementById('roleBadge').textContent = IS_CREATOR ? '👑 Creator' : '👤 Patient';
+
+      function deleteItem(key, id, renderFn, confirmMsg) {
+        if (!IS_CREATOR) return;
+        if (!confirm(confirmMsg || 'Delete this item?')) return;
+        const items = getData(key);
+        const filtered = items.filter(item => item.id !== id);
+        if (filtered.length === items.length) return;
+        setData(key, filtered);
+        renderFn();
+      }
+
+      function renderAppointments() {
+        const list = document.getElementById('appointmentList');
+        const data = getData(STORAGE.appointments);
+        if (!data.length) {
+          list.innerHTML = '<p class="text-muted">No appointments scheduled.</p>';
+          return;
+        }
+        let html = `<div class="table-wrap"><table><thead><tr><th>Date</th><th>Time</th><th>Provider</th>`;
+        if (IS_CREATOR) html += `<th>Action</th>`;
+        html += `</tr></thead><tbody>`;
+        data.forEach(a => {
+          html += `<tr><td>${a.date}</td><td>${a.time}</td><td>${a.provider}</td>`;
+          if (IS_CREATOR) {
+            html += `<td><button class="btn-delete" data-id="${a.id}"><i class="fas fa-trash-alt"></i> Delete</button></td>`;
+          }
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+        list.innerHTML = html;
+        if (IS_CREATOR) {
+          list.querySelectorAll('.btn-delete').forEach(btn => {
+            btn.addEventListener('click', function() {
+              deleteItem(STORAGE.appointments, this.dataset.id, renderAppointments, 'Delete this appointment?');
+            });
+          });
+        }
+      }
+
+      document.getElementById('appointmentForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const date = document.getElementById('apptDate').value;
+        const time = document.getElementById('apptTime').value;
+        const provider = document.getElementById('apptProvider').value;
+        if (!date || !time || !provider) return;
+        const appts = getData(STORAGE.appointments);
+        appts.push({ id: 'a' + Date.now(), date, time, provider });
+        setData(STORAGE.appointments, appts);
+        renderAppointments();
+        this.reset();
+        document.getElementById('apptDate').focus();
+      });
+
+      renderAppointments();
+      if (IS_CREATOR) {
+        const indicator = document.createElement('div');
+        indicator.className = 'creator-indicator';
+        indicator.innerHTML = `<i class="fas fa-crown"></i> <strong>Creator mode</strong> — You can delete appointments. Regular patients cannot.`;
+        document.querySelector('.page-container').prepend(indicator);
+      }
+    })();
+  </script>
+</body>
+</html>
